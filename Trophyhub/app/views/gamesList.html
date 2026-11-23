@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Meus Jogos - trophyHub{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <h1>Meus Jogos e Conquistas</h1>
+    <p style="color: var(--text-muted);">Jogos em que você já desbloqueou conquistas na sua conta.</p>
+</div>
+
+{% if meus_jogos %}
+    {% for game_nome, dados in meus_jogos.items() %}
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                <h2>{{ game_nome }}</h2>
+                <span style="color: var(--orange-primary); font-weight: 600;">{{ dados['genero'] }}</span>
+            </div>
+
+            <div class="trophy-grid">
+                {% for conquista in dados['conquistas'] %}
+                    <div class="trophy-item unlocked" style="justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="trophy-icon" style="font-size: 1.3rem;">🏆</span>
+                                <strong>{{ conquista['nome'] }}</strong>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem;">
+                                {{ conquista['descricao'] or 'Sem descrição.' }}
+                            </p>
+                        </div>
+                        <form method="POST" action="{{ url_for('auth.delete_achievement', achievement_id=conquista['id']) }}">
+                            <button type="submit" style="background-color: #e74c3c; padding: 0.3rem 0.6rem; font-size: 0.8rem;">Remover</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card" style="text-align: center; padding: 2.5rem;">
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">Você ainda não adicionou nenhuma conquista à sua conta.</p>
+        <a href="{{ url_for('auth.home') }}" class="btn">Explorar Jogos na Home</a>
+    </div>
+{% endif %}
+{% endblock %}

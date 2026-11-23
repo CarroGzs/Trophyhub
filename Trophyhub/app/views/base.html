@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}trophyHub{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="{% if request.cookies.get('theme') == 'light' %}theme-light{% else %}theme-dark{% endif %}">
+    <header>
+        <a href="/" class="logo">trophy<span>Hub</span></a>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                {% if g.usuario %}
+                    <li><a href="{{ url_for('main.gamesList') }}">Meus Jogos</a></li>
+                    <li style="color: var(--text-muted); font-size: 0.9rem;">Olá, <strong>{{ g.usuario.username }}</strong></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('main.toggle_theme') }}" class="btn-theme-toggle">☀️ / 🌙</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 trophyHub - Gerencie e mostre as suas conquistas.</p>
+    </footer>
+</body>
+</html>

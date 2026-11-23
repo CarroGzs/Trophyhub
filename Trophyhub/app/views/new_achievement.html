@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Conquista - trophyHub{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 450px; margin: 2rem auto;">
+    <h2>Adicionar Conquista</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Jogo: <strong>{{ game.nome }}</strong></p>
+
+    <form method="POST" action="{{ url_for('auth.new_achievement', game_id=game.id) }}">
+        <div class="form-group">
+            <label for="nome">Nome da Conquista</label>
+            <input type="text" id="nome" name="nome" placeholder="Ex: Zerar no modo Difícil" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="descricao">Descrição (Opcional)</label>
+            <textarea id="descricao" name="descricao" rows="3" placeholder="Ex: Conclua a campanha principal sem morrer"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn" style="flex: 1;">Adicionar</button>
+            <a href="{{ url_for('main.gamesList') }}" class="btn-theme-toggle" style="text-decoration: none; text-align: center; padding: 0.75rem;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

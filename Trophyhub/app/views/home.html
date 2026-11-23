@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - trophyHub{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h1>Bem-vindo, {{ g.usuario.username }}!</h1>
+            <p style="color: var(--text-muted);">Escolha um jogo abaixo para adicionar conquistas à sua conta.</p>
+        </div>
+        
+        {% if g.usuario.username == 'admin' %}
+            <a href="{{ url_for('auth.newgame') }}" class="btn">+ Novo Jogo (Admin)</a>
+        {% endif %}
+    </div>
+
+    <form method="GET" action="{{ url_for('auth.home') }}" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+        <input type="text" name="q" value="{{ busca or '' }}" placeholder="Buscar jogo por nome ou gênero...">
+        <button type="submit" class="btn">Buscar</button>
+        {% if busca %}
+            <a href="{{ url_for('auth.home') }}" class="btn-theme-toggle" style="display: flex; align-items: center; text-decoration: none;">Limpar</a>
+        {% endif %}
+    </form>
+
+    {% if listaGames %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="text-align: left; border-bottom: 1px solid var(--border-color);">
+                <th style="padding: 0.8rem;">Jogo</th>
+                <th style="padding: 0.8rem;">Gênero</th>
+                <th style="padding: 0.8rem;">Conquistas Disponíveis</th>
+                <th style="padding: 0.8rem; text-align: center;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in listaGames %}
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.8rem; font-weight: 600;">{{ game.nome }}</td>
+                <td style="padding: 0.8rem;">{{ game.genero }}</td>
+                <td style="padding: 0.8rem;">
+                    {% if game.conquistas %}
+                        {% if g.usuario.username == 'admin' %}
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                {% for conquista in game.conquistas %}
+                                    <span style="display: inline-flex; align-items: center; gap: 0.4rem; background: var(--bg-input); border: 1px solid var(--border-color); padding: 0.25rem 0.6rem; border-radius: var(--radius); font-size: 0.85rem;">
+                                        {{ conquista }}
+                                        <form method="POST" action="{{ url_for('auth.admin_remove_achievement', game_id=game.id) }}" style="display: inline;">
+                                            <input type="hidden" name="nome_conquista" value="{{ conquista }}">
+                                            <button type="submit" style="background: none; border: none; box-shadow: none; color: #e74c3c; padding: 0; font-weight: 800; cursor: pointer;">×</button>
+                                        </form>
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ game.conquistas | join(', ') }}
+                        {% endif %}
+                    {% else %}
+                        <span style="color: var(--text-muted);">Nenhuma conquista</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 0.8rem; text-align: center; display: flex; gap: 0.5rem; justify-content: center;">
+                    {% if g.usuario.username == 'admin' %}
+                        <a href="{{ url_for('auth.new_achievement', game_id=game.id) }}" class="btn-theme-toggle" style="text-decoration: none; padding: 0.4rem 0.8rem;">+ Conquista</a>
+                        
+                        <form method="POST" action="{{ url_for('auth.delete_game', game_id=game.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir?');">
+                            <button type="submit" style="background-color: #e74c3c; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Excluir Jogo</button>
+                        </form>
+                    {% else %}
+                        {% if game.conquistas %}
+                            <form method="POST" action="{{ url_for('auth.claim_achievement', game_id=game.id) }}" style="display: flex; gap: 0.4rem;">
+                                <select name="nome_conquista" style="padding: 0.35rem;">
+                                    {% for conquista in game.conquistas %}
+                                        <option value="{{ conquista }}">{{ conquista }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; white-space: nowrap;">+ Minha Conta</button>
+                            </form>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Sem conquistas</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 1.5rem;">Nenhum jogo encontrado para "{{ busca }}".</p>
+    {% endif %}
+</div>
+{% endblock %}
